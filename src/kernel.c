@@ -1,24 +1,20 @@
 #include <drivers/serial/serial.h>
 #include <drivers/display/vga.h>
 #include <utils/log.h>
+#include <klib/stdio.h>
 
 void kernel_main()
 {
     print_clear();
     print_set_color(COLOR_WHITE, COLOR_BLACK);
-    print_str("64bit potato!!!");
-
-    if (init_serial() == 0)
-    {
-        print_str("Serial port initialized");
-    }
-    else
-    {
-        print_str("Error with serial port. :(");
-    }
-
-    log("Serial!!!\n");
-    log("Mahtavaa!\n");
+    
+    init_serial();
+    
+    kprintf("64bit potato!!!");
+    kprintf("Serial!!!\n");
+    kprintf("Mahtavaa!\n");
+    int a = 1337;
+    kprintf("hex: %X -> %i", a, a);
 
     while (1)
         ;

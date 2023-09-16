@@ -1,5 +1,5 @@
-CPPPARAMS =  -s -Iinclude -nostdlib -fno-builtin -fno-exceptions -fno-leading-underscore -Wno-write-strings -fno-pic -ffreestanding -Wl,--build-id=none
-ASPARAMS	= 
+CPPPARAMS =  -s -Iinclude -nostdlib -fno-builtin -fno-exceptions -fno-leading-underscore -Wno-write-strings -fno-pic -ffreestanding -Wl,--build-id=none 
+ASPARAMS	= -f elf64
 LDPARAMS = -melf_x86_64
 
 objects = 	obj/boot/header.o \
@@ -9,7 +9,9 @@ objects = 	obj/boot/header.o \
 			obj/drivers/serial/serial.o \
 			obj/drivers/display/vga.o \
 			obj/utils/log.o \
-			obj/kernel.o
+			obj/klib/stdio.o \
+			obj/klib/string.o \
+			obj/kernel.o 
 
 ISO_FILENAME = dist/test_os.iso
 
@@ -19,7 +21,7 @@ obj/%.o: src/%.c
 
 obj/%.o: src/%.S
 	mkdir -p $(@D)
-	nasm -f elf64 $< -o $@
+	nasm $(ASPARAMS) $< -o $@
 
 kernel.elf: linker.ld $(objects)
 	mkdir -p image
