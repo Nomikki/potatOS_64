@@ -1,6 +1,5 @@
 #CPPPARAMS =  -s -Iinclude -nostdlib -fno-builtin -fno-exceptions -fno-leading-underscore -Wno-write-strings -fno-pic -ffreestanding -Wl,--build-id=none 
 CPPPARAMS := -std=gnu99 \
-		-s \
 		-nostdlib \
 		-fno-builtin \
 		-fno-exceptions \

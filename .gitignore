@@ -4,3 +4,4 @@ prepare
 obj
 image
 .vscode
+iso/boot/kernel.elf

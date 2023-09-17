@@ -9,6 +9,11 @@
 #define IDT_INTERRUPT_TYPE_FLAG 0x0E
 #define IDT_SEGMENT_SELECTOR 0x08
 
+#define PIC_MASTER_COMMAND 0x20
+#define PIC_MASTER_DATA 0x21
+#define PIC_SLAVE_COMMAND 0xA0
+#define PIC_SLAVE_DATA  0xA1
+
 #define KERNEL_CS 0x8
 
 struct cpu_status

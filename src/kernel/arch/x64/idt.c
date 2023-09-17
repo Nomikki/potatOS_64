@@ -14,10 +14,12 @@ void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, 
     idt_table[idx].offset_high = (uint32_t)((uint64_t)handler >> 32);
     idt_table[idx].reserved = 0x0;
 
+    /*
     if (idx % 2 == 0)
         kprintf("\n");
 
     kprintf("idt: %i,%shandler: 0x%Z   ", idx, idx < 10 ? "  " : " ", handler);
+    */
 }
 
 void load_idt()
@@ -72,25 +74,20 @@ void setup_idt()
     set_idt_entry(0x22, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, KERNEL_CS, 0, interrupt_service_routine_34);
     set_idt_entry(0xFF, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, KERNEL_CS, 0, interrupt_service_routine_255);
 
-    int picMasterCommand = 0x20;
-    int picMasterData = 0x21;
-    int picSlaveCommand = 0xA0;
-    int picSlaveData = 0xA1;
+    outportb(PIC_MASTER_COMMAND, 0x11);
+    outportb(PIC_SLAVE_COMMAND, 0x11);
 
-    outportb(picMasterCommand, 0x11);
-    outportb(picSlaveCommand, 0x11);
+    outportb(PIC_MASTER_DATA, 0x20);
+    outportb(PIC_SLAVE_DATA, 0x28);
 
-    outportb(picMasterData, 0x20);
-    outportb(picSlaveData, 0x28);
+    outportb(PIC_MASTER_DATA, 0x04);
+    outportb(PIC_SLAVE_DATA, 0x02);
 
-    outportb(picMasterData, 0x04);
-    outportb(picSlaveData, 0x02);
+    outportb(PIC_MASTER_DATA, 0x1);
+    outportb(PIC_SLAVE_DATA, 0x01);
 
-    outportb(picMasterData, 0x1);
-    outportb(picSlaveData, 0x01);
-
-    outportb(picMasterData, 0x00);
-    outportb(picSlaveData, 0x00);
+    outportb(PIC_MASTER_DATA, 0x00);
+    outportb(PIC_SLAVE_DATA, 0x00);
 
     load_idt();
 
@@ -158,16 +155,14 @@ struct cpu_status *interrupt_dispatch(struct cpu_status *context)
 
     if (interrupt_number >= 0x20 && interrupt_number < 0x20 + 16)
     {
-        int picMasterCommand = 0x20;
-        int picSlaveCommand = 0xA0;
-
-        outportb(picMasterCommand, 0x20);
+      
+        outportb(PIC_MASTER_COMMAND, 0x20);
 
         if (0x20 + 8 <= interrupt_number)
         {
-            outportb(picSlaveCommand, 0x20);
+            outportb(PIC_SLAVE_COMMAND, 0x20);
         }
-        //return context;
+        // return context;
 
         if (interrupt_number == 0x21)
         {
@@ -183,8 +178,8 @@ struct cpu_status *interrupt_dispatch(struct cpu_status *context)
     }
     */
 
-    outportb(0x20, 0x20);
-    outportb(0xA0, 0x20);
+    outportb(PIC_MASTER_COMMAND, 0x20);
+    outportb(PIC_SLAVE_COMMAND, 0x20);
 
     return context;
 }
