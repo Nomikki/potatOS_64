@@ -1,12 +1,13 @@
 # Potatos 64
 ## TODO
-* cross compilation compiler
-* makefile template
-* linker script with higher half
-* gdt
-* serial port
-* higher half kernel
-* idt and handlers
+* ✔️ cross compilation compiler
+* ✔️ makefile template
+* ✔️ linker script with higher half
+* ✔️ gdt
+* ✔️ serial port
+* ✔️ higher half kernel
+* ✔️ idt and handlers
+* ✔️ long mode
 * acpi tables
 * apic
 * timer (pit, hpet, local apic timer)
