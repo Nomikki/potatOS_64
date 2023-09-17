@@ -3,27 +3,79 @@
 #include <kernel/arch/x64/idt.h>
 #include <utils/log.h>
 #include <klib/stdio.h>
+#include <multiboot.h>
 
+#define _HIGHER_HALF_KERNEL_MEM_START 0xffffffff80000000
+extern uint64_t _kernel_start;
+extern uint64_t _kernel_physical_end;
+extern uint64_t _kernel_end;
+extern uint64_t _kern_virtual_offset;
+
+extern uint64_t multiboot_framebuffer_data;
+
+extern uint64_t multiboot_basic_meminfo;
+struct multiboot_tag_basic_meminfo *tagmem = NULL;
+struct multiboot_tag_framebuffer *tagfb = NULL;
+extern uint64_t p4_table[];
+extern uint64_t end_of_mapped_memory;
+
+uint64_t memory_size_in_bytes = 0;
+
+void _init_basic_system(unsigned long addr)
+{
+    struct multiboot_tag *tag;
+    uint32_t mbi_size = *(uint32_t *)(addr + _HIGHER_HALF_KERNEL_MEM_START);
+
+    tagmem = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
+    tagfb = (struct multiboot_tag_framebuffer *)(multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
+
+    memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
+
+    kprintf("Mem: %u kB\n", memory_size_in_bytes / 1024);
+    kprintf("Frame buffer info: type: 0x%X, address: 0x%Z\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+    kprintf("width: %u, height: %u, bpp: %u, pitch: %u\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+
+
+    kprintf("End of mapped mem: 0x%Z\n", end_of_mapped_memory);
+
+    kprintf("mapped tables:\n");
+    for (int i = 0; i < 512; i++) {
+        if (p4_table[i] != 0)
+            kprintf("%i: 0x%Z\n", i, (uint64_t)p4_table[i]);
+    }
+
+}
 
 void kernel_start(unsigned long addr, unsigned long magic)
 {
 
-    
     print_clear();
     print_set_color(COLOR_LIGHT_GRAY, COLOR_BLACK);
 
     init_serial();
 
-    kprintf("64bit potato!!!");
-    kprintf("Serial!!!\n");
-    kprintf("Mahtavaa!\n");
-    int a = 1337;
-    kprintf("hex: %X -> %i", a, a);
+    kprintf("PotatOS\n");
+
+    _init_basic_system(addr);
+
+    uint64_t kernelStart = (uint64_t)&_kernel_start;
+    uint64_t kernelEnd = (uint64_t)&_kernel_physical_end;
+    uint64_t kernelSize = (((unsigned long)&_kernel_end + (1024 * 1024)) - (unsigned long)&_kern_virtual_offset);
+
+    kprintf("virtual offset: %Z\n", (unsigned long)&_kern_virtual_offset);
+
+    unsigned size = *(unsigned *)(addr + _HIGHER_HALF_KERNEL_MEM_START);
+
+    if (magic == 0x36d76289)
+    {
+        kprintf("Magic number verified Size:  %X - Magic: %X\n", size, magic);
+    }
+    else
+    {
+        kprintf("Failed to verify magic number. Something is wrong\n");
+    }
 
     setup_idt();
-    
-
-
 
     while (1)
         ;

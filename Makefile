@@ -57,6 +57,6 @@ clean:
 
 run:
 # qemu-system-x86_64.exe -cdrom $(ISO_FILENAME) -serial file:"serial.log"
-	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(ISO_FILENAME) -serial file:"serial.log" -m 2G -no-reboot -no-shutdown
+	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(ISO_FILENAME) -serial file:"serial.log" -m 1G -no-reboot -no-shutdown
 
 buildRun: build run
