@@ -1,5 +1,5 @@
 #include <drivers/serial/serial.h>
-#include <drivers/display/vga.h>
+#include <kernel/arch/x64/vga.h>
 
 void log(char *str)
 {

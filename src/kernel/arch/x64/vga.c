@@ -1,5 +1,5 @@
 
-#include <drivers/display/vga.h>
+#include <kernel/arch/x64/vga.h>
 
 const int NUM_COLS = 80;
 const int NUM_ROWS = 25;
@@ -10,7 +10,7 @@ struct Char
     unsigned char col;
 };
 
-struct Char *buffer = (struct Char *)0xB8000;
+struct Char *buffer = (struct Char *)_VIDEO_MEM_START;
 int col = 0;
 int row = 0;
 unsigned char color = 7 | 0 << 4;

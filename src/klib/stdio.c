@@ -1,5 +1,5 @@
 #include <klib/string.h>
-#include <drivers/display/vga.h>
+#include <kernel/arch/x64/vga.h>
 #include <stdarg.h>
 #include <limits.h>
 #include <stdint.h>
@@ -145,6 +145,18 @@ void printfHex32(uint32_t key)
     printfHex(key & 0xFF);
 }
 
+void printfHex64(uint64_t key)
+{
+    printfHex((key >> 56) & 0xFF);
+    printfHex((key >> 48) & 0xFF);
+    printfHex((key >> 40) & 0xFF);
+    printfHex((key >> 32) & 0xFF);
+    printfHex((key >> 24) & 0xFF);
+    printfHex((key >> 16) & 0xFF);
+    printfHex((key >> 8) & 0xFF);
+    printfHex(key & 0xFF);
+}
+
 int32_t kprintf(const char *format, ...)
 {
     va_list parameters;
@@ -270,6 +282,19 @@ int32_t kprintf(const char *format, ...)
             printfHex32(num);
 
             written += 8;
+        }
+         else if (*format == 'Z')
+        {
+            format++;
+
+            uint64_t num = (uint64_t)va_arg(parameters, uint64_t);
+            if (maxrem < 16)
+            {
+                return -1;
+            }
+            printfHex64(num);
+
+            written += 16;
         }
         else
         {
