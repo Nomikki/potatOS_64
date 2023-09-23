@@ -1,6 +1,7 @@
 #include <kernel/arch/x64/idt.h>
 #include <klib/stdio.h>
 #include <drivers/io/ports.h>
+#include <utils/log.h>
 
 IDT_descriptor idt_table[IDT_SIZE];
 
@@ -16,9 +17,9 @@ void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, 
 
     /*
     if (idx % 2 == 0)
-        kprintf("\n");
+        klog("\n");
 
-    kprintf("idt: %i,%shandler: 0x%Z   ", idx, idx < 10 ? "  " : " ", handler);
+    klog("idt: %i,%shandler: 0x%Z   ", idx, idx < 10 ? "  " : " ", handler);
     */
 }
 
@@ -36,7 +37,7 @@ void load_idt()
 void setup_idt()
 {
     __asm__ volatile("cli");
-    kprintf("\n");
+    klog("\n");
 
     int i = 0;
     while (i < IDT_SIZE)
@@ -104,58 +105,58 @@ struct cpu_status *interrupt_dispatch(struct cpu_status *context)
         switch (interrupt_number)
         {
         case 8:
-            kprintf("Double fault.");
+            klog("Double fault.");
             break;
         case 13:
-            kprintf("General protection fault.");
-            kprintf("\n");
+            klog("General protection fault.");
+            klog("\n");
 
             break;
         case 14:
-            kprintf("Page fault.");
-            kprintf("\n");
+            klog("Page fault.");
+            klog("\n");
 
             uint64_t cr2_content = 0;
             asm("mov %%cr2, %0"
                 : "=r"(cr2_content));
-            kprintf("Faulting address: %Z\n", cr2_content);
+            klog("Faulting address: %Z\n", cr2_content);
 
         default:
             break;
         }
 
-        kprintf("\n");
-        kprintf("Interrupt vector: %Z\n", interrupt_number);
+        klog("\n");
+        klog("Interrupt vector: %Z\n", interrupt_number);
 
-        kprintf("r15:  %Z  ", context->r15);
-        kprintf("r14:  %Z\n", context->r14);
-        kprintf("r13:  %Z  ", context->r13);
-        kprintf("r12:  %Z\n", context->r12);
-        kprintf("r11:  %Z  ", context->r11);
-        kprintf("r10:  %Z\n", context->r10);
-        kprintf("r9:   %Z  ", context->r9);
-        kprintf("r8:   %Z\n", context->r8);
-        kprintf("rdi:  %Z  ", context->rdi);
-        kprintf("rsi:  %Z\n", context->rsi);
-        kprintf("rbp:  %Z  ", context->rbp);
-        kprintf("rdx:  %Z\n", context->rdx);
-        kprintf("rcx:  %Z  ", context->rcx);
-        kprintf("rbx:  %Z\n", context->rbx);
-        kprintf("rax:  %Z\n", context->rax);
+        klog("r15:  %Z  ", context->r15);
+        klog("r14:  %Z\n", context->r14);
+        klog("r13:  %Z  ", context->r13);
+        klog("r12:  %Z\n", context->r12);
+        klog("r11:  %Z  ", context->r11);
+        klog("r10:  %Z\n", context->r10);
+        klog("r9:   %Z  ", context->r9);
+        klog("r8:   %Z\n", context->r8);
+        klog("rdi:  %Z  ", context->rdi);
+        klog("rsi:  %Z\n", context->rsi);
+        klog("rbp:  %Z  ", context->rbp);
+        klog("rdx:  %Z\n", context->rdx);
+        klog("rcx:  %Z  ", context->rcx);
+        klog("rbx:  %Z\n", context->rbx);
+        klog("rax:  %Z\n", context->rax);
 
-        kprintf("\n");
+        klog("\n");
 
-        kprintf("err: %Z\n", context->error_code);
-        kprintf("rip: %Z\n", context->rip);
-        kprintf("cs:  %Z\n", context->cs);
-        kprintf("rfl: %Z\n", context->rflags);
-        kprintf("rsp: %Z\n", context->rsp);
-        kprintf("ss:  %Z\n", context->ss);
+        klog("err: %Z\n", context->error_code);
+        klog("rip: %Z\n", context->rip);
+        klog("cs:  %Z\n", context->cs);
+        klog("rfl: %Z\n", context->rflags);
+        klog("rsp: %Z\n", context->rsp);
+        klog("ss:  %Z\n", context->ss);
     }
 
     if (interrupt_number >= 0x20 && interrupt_number < 0x20 + 16)
     {
-      
+
         outportb(PIC_MASTER_COMMAND, 0x20);
 
         if (0x20 + 8 <= interrupt_number)

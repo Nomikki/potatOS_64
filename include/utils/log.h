@@ -20,7 +20,7 @@ char *getFileName(const char *path) {
     return (char *)filename;
 }
 
-#define klog(fmt, ...) kprintf("%u:%s:%s-> " fmt, __LINE__, getFileName(__FILE__), __FUNCTION__, ##__VA_ARGS__)
+#define klog(fmt, ...) kprintf("%u:%s:%s: " fmt, __LINE__, getFileName(__FILE__), __FUNCTION__, ##__VA_ARGS__)
 #else
 #define klog(fmt, ...) kprintf(fmt, ##__VA_ARGS__)
 #endif
