@@ -13,3 +13,19 @@ void log(char *str)
         print_char(ch);
     }
 }
+
+extern char *getFileName(const char *path)
+{
+    const char *filename = path;
+    const char *ptr = path;
+
+    while (*ptr)
+    {
+        if (*ptr == '/' || *ptr == '\\')
+        {
+            filename = ptr + 1;
+        }
+        ptr++;
+    }
+    return (char *)filename;
+}

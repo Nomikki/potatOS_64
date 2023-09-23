@@ -1,5 +1,4 @@
-#define DEBUG 1
-
+#include <configs.h>
 #include <drivers/serial/serial.h>
 #include <kernel/arch/x64/vga.h>
 #include <kernel/arch/x64/idt.h>
@@ -15,7 +14,6 @@ extern uint64_t _kernel_end;
 extern uint64_t _kern_virtual_offset;
 
 extern uint64_t multiboot_framebuffer_data;
-
 extern uint64_t multiboot_basic_meminfo;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_framebuffer *tagfb = NULL;

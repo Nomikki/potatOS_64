@@ -19,7 +19,8 @@ ASPARAMS	= -f elf64
 LDPARAMS = -melf_x86_64
 QEMU_SYSTEM := qemu-system-x86_64.exe
 
-objects = 	obj/boot/main.o \
+objects = 	obj/configs.o \
+			obj/boot/main.o \
 			obj/drivers/io/ports.o \
 			obj/drivers/serial/serial.o \
 			obj/kernel/arch/x64/vga.o \

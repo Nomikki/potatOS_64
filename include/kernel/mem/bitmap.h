@@ -1,6 +1,9 @@
-#ifndef KERNEL_MEM_BITMAP_H_
-#define KERNEL_MEM_BITMAP_H_
+#ifndef KERNEL_MEM_BITMAP_H
+#define KERNEL_MEM_BITMAP_H
 
-void init_bitmap();
+#include <stddef.h>
+#include <stdint.h>
 
-#endif // KERNEL_MEM_BITMAP_H_
+void bitmap_init(unsigned long end_of_reserved_area);
+
+#endif // KERNEL_MEM_BITMAP_H
