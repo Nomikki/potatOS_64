@@ -7,6 +7,7 @@
 #include <klib/stdio.h>
 #include <multiboot.h>
 #include <drivers/io/ports.h>
+#include <drivers/video/framebuffer.h>
 
 #define _HIGHER_HALF_KERNEL_MEM_START 0xffffffff80000000
 extern uint64_t _kernel_start;
@@ -25,6 +26,7 @@ uint64_t memory_size_in_bytes = 0;
 
 void basic_system_init(unsigned long addr)
 {
+
     struct multiboot_tag *tag;
     uint32_t mbi_size = *(uint32_t *)(addr + _HIGHER_HALF_KERNEL_MEM_START);
 
@@ -35,8 +37,7 @@ void basic_system_init(unsigned long addr)
 
     klog("Mem: %u MB (%u KB)\n", memory_size_in_bytes / 1024 / 1024, memory_size_in_bytes / 1024);
 
-    klog("Frame buffer info: type: 0x%X, address: 0x%Z\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    klog("width: %u, height: %u, bpp: %u, pitch: %u\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+    framebuffer_init(tagfb->common.framebuffer_addr + _HIGHER_HALF_KERNEL_MEM_START);
 
     klog("End of mapped mem: 0x%Z\n", end_of_mapped_memory);
 

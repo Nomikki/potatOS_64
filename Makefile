@@ -19,6 +19,8 @@ ASPARAMS	= -f elf64
 LDPARAMS = -melf_x86_64
 QEMU_SYSTEM := qemu-system-x86_64.exe
 
+FONTNAME = font.psf
+
 objects = 	obj/configs.o \
 			obj/boot/main.o \
 			obj/drivers/io/ports.o \
@@ -31,6 +33,7 @@ objects = 	obj/configs.o \
 			obj/utils/log.o \
 			obj/klib/stdio.o \
 			obj/klib/string.o \
+			obj/drivers/video/framebuffer.o \
 			obj/kernel/core/kernel.o 
 
 ISO_FILENAME = dist/test_os.iso
@@ -45,12 +48,18 @@ obj/%.o: src/%.S
 
 kernel.elf: linker.ld $(objects)
 	mkdir -p image
-	x86_64-elf-ld -n -o $(LDPARAMS) -T $< -o image/$@ $(objects)
+	
+	x86_64-elf-ld -n -o $(LDPARAMS) -T $< -o image/$@ $(objects) obj/font.o
 
 all: clean build run 
 .PHONY: build
 
-build: kernel.elf
+createFont:
+	mkdir -p obj
+	objcopy -O elf64-x86-64 -B i386 -I binary $(FONTNAME) obj/font.o
+	readelf -s obj/font.o
+
+build: createFont kernel.elf
 	cp image/kernel.elf iso/boot/kernel.elf
 	mkdir -p dist
 	grub-mkrescue -o $(ISO_FILENAME) iso

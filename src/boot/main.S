@@ -7,7 +7,7 @@
 %define MULTIBOOT_TAG_TYPE_ACPI_OLD 14
 %define MULTIBOOT_TAG_TYPE_ACPI_NEW 15
 %define SMALL_PAGES 1
-%define USE_FRAMEBUFFER 0
+%define USE_FRAMEBUFFER 1
 
 
 section .multiboot_header
