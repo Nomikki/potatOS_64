@@ -9,7 +9,7 @@ void log(char *str)
         if (ch == '\0')
             return;
 
-        write_serial(ch);
+        serial_write(ch);
         print_char(ch);
     }
 }

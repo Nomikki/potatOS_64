@@ -106,12 +106,8 @@ extern void interrupt_service_routine_33();
 extern void interrupt_service_routine_34(); 
 extern void interrupt_service_routine_255();
 
-/*
-void set_idt_entry(uint8_t vector, void *handler, uint8_t dpl);
-void setup_idt();
-*/
 
-void init_idt();
+void idt_init();
 void load_idt();
 void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, void (*handler)());
 extern struct cpu_status *interrupts_handler(struct cpu_status *);

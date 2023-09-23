@@ -6,6 +6,7 @@
 #include <utils/log.h>
 #include <klib/stdio.h>
 #include <multiboot.h>
+#include <drivers/io/ports.h>
 
 #define _HIGHER_HALF_KERNEL_MEM_START 0xffffffff80000000
 extern uint64_t _kernel_start;
@@ -22,7 +23,7 @@ extern uint64_t end_of_mapped_memory;
 
 uint64_t memory_size_in_bytes = 0;
 
-void init_basic_system(unsigned long addr)
+void basic_system_init(unsigned long addr)
 {
     struct multiboot_tag *tag;
     uint32_t mbi_size = *(uint32_t *)(addr + _HIGHER_HALF_KERNEL_MEM_START);
@@ -49,16 +50,22 @@ void init_basic_system(unsigned long addr)
     }
 }
 
+void cursor_disable()
+{
+    outportb(0x3d4, 0x0A);
+    outportb(0x3d5, 0x20);
+}
+
 void kernel_start(unsigned long addr, unsigned long magic)
 {
     print_clear();
     print_set_color(COLOR_LIGHT_GRAY, COLOR_BLACK);
 
-    init_serial();
+    serial_init();
 
     klog("PotatOS\n");
 
-    init_basic_system(addr);
+    basic_system_init(addr);
 
     uint64_t kernelStart = (uint64_t)&_kernel_start;
     uint64_t kernelEnd = (uint64_t)&_kernel_physical_end;
@@ -77,7 +84,9 @@ void kernel_start(unsigned long addr, unsigned long magic)
         klog("Failed to verify magic number. Something is wrong\n");
     }
 
-    setup_idt();
+    idt_init();
+
+    cursor_disable();
 
     while (1)
         ;

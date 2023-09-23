@@ -294,6 +294,7 @@ higher_half:
     mov cr3, rax
     call kernel_start
 
+
 section .bss
 
 align 4096

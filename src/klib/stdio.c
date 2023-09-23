@@ -318,7 +318,7 @@ int32_t kprintf(const char *format, ...)
 int32_t putchar(int32_t character)
 {
     print_char(character);
-    write_serial(character);
+    serial_write(character);
     return 0;
 }
 

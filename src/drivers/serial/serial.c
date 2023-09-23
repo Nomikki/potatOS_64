@@ -1,7 +1,7 @@
 #include <drivers/serial/serial.h>
 #include <drivers/io/ports.h>
 
-int init_serial()
+int serial_init()
 {
     outportb(SERIAL_PORT + 1, 0x00);
     outportb(SERIAL_PORT + 3, 0x80);
@@ -41,7 +41,7 @@ int is_transmit_empty()
     return inportb(SERIAL_PORT + 5) & 0x20;
 }
 
-void write_serial(char a)
+void serial_write(char a)
 {
     while (is_transmit_empty() == 0)
         ;

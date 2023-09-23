@@ -34,7 +34,7 @@ void load_idt()
                          : "g"(idtr));
 }
 
-void setup_idt()
+void idt_init()
 {
     __asm__ volatile("cli");
     klog("\n");
