@@ -32,6 +32,8 @@ PSF_font *font;
 
 uint32_t *framebuffer = (uint32_t *)0xffffffffbd000000;
 
+uint32_t framebuffer_buffer[800 * 600];
+
 extern struct multiboot_tag_framebuffer *tagfb;
 extern char _binary_font_psf_start;
 int font_bytesPerLine;
@@ -46,20 +48,31 @@ void draw_text(uint32_t cx, uint32_t cy, uint8_t r, uint8_t g, uint8_t b, const 
         uint8_t *glyph = (uint8_t *)&_binary_font_psf_start + font->headersize + (ch > 0 && ch < font->numglyph ? ch : 0) * font->bytesperglyph;
 
         int mask;
-        for (int y = 0; y < font->height; y++)
+        for (uint32_t y = 0; y < font->height; y++)
         {
             mask = 1 << (font->width - 1);
-            for (int x = 0; x < font->width; x++)
+            for (uint32_t x = 0; x < font->width; x++)
             {
                 if (*((unsigned int *)glyph) & mask)
                 {
-                    plot_pixel(((cx + i) * font->width) + x, (cy * font->height) + y, r, g, b);
+                    plot_pixel(cx + (i * font->width) + x, cy + font->height + y, r, g, b);
                 }
 
                 mask >>= 1;
             }
 
             glyph += font_bytesPerLine;
+        }
+    }
+}
+
+void draw_testCanvas()
+{
+    for (int y = 0; y < tagfb->common.framebuffer_height; y++)
+    {
+        for (int x = 0; x < tagfb->common.framebuffer_width; x++)
+        {
+            plot_pixel(x, y, x % 255, y % 255, 0);
         }
     }
 }
@@ -78,16 +91,6 @@ void framebuffer_init(unsigned long addr)
 
     klog("font magic: %X\n", font->magic);
     klog("font size: %i * %i\n", font->width, font->height);
-
-    for (int y = 0; y < 255; y++)
-    {
-        for (int x = 0; x < 255; x++)
-        {
-            plot_pixel(x, y, x, y, 255);
-        }
-    }
-
-    draw_text(10, 10, 255, 255, 255, "Ohai!");
 }
 
 void plot_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
@@ -95,5 +98,28 @@ void plot_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
     uint32_t row = y * tagfb->common.framebuffer_width;
     uint32_t column = x;
 
-    framebuffer[column + row] = (r << 16) | (g << 8) | (b);
+    framebuffer_buffer[column + row] = (r << 16) | (g << 8) | (b);
+}
+
+void framebuffer_clear(uint8_t r, uint8_t g, uint8_t b)
+{
+    uint64_t size = tagfb->common.framebuffer_width * tagfb->common.framebuffer_height;
+    for (uint32_t i = 0; i < size; i += 2)
+    {
+        framebuffer_buffer[i] = 0;
+        framebuffer_buffer[i + 1] = 0;
+    }
+}
+
+void framebuffer_clear_black()
+{
+    framebuffer_clear(0, 0, 0);
+}
+
+void framebuffer_flip()
+{
+    for (uint32_t i = 0; i < tagfb->common.framebuffer_width * tagfb->common.framebuffer_height; i++)
+    {
+        framebuffer[i] = framebuffer_buffer[i];
+    }
 }
