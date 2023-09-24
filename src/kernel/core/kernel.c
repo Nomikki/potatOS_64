@@ -9,7 +9,6 @@
 #include <drivers/io/ports.h>
 #include <drivers/video/framebuffer.h>
 
-#define _HIGHER_HALF_KERNEL_MEM_START 0xffffffff80000000
 extern uint64_t _kernel_start;
 extern uint64_t _kernel_physical_end;
 extern uint64_t _kernel_end;
@@ -19,7 +18,12 @@ extern uint64_t multiboot_framebuffer_data;
 extern uint64_t multiboot_basic_meminfo;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_framebuffer *tagfb = NULL;
+extern uint64_t p2_table[];
 extern uint64_t p4_table[];
+extern uint64_t p3_table[];
+extern uint64_t p3_table_hh[];
+
+// extern uint64_t pt_tables[];
 extern uint64_t end_of_mapped_memory;
 
 uint64_t memory_size_in_bytes = 0;
@@ -44,11 +48,42 @@ void basic_system_init(unsigned long addr)
     pmm_setup(addr, mbi_size);
 
     klog("mapped tables:\n");
+    klog("P4:\n");
     for (int i = 0; i < 512; i++)
     {
         if (p4_table[i] != 0)
             klog("%i: 0x%Z\n", i, (uint64_t)p4_table[i]);
     }
+
+    klog("P3:\n");
+    for (int i = 0; i < 1024; i++)
+    {
+        if (p3_table[i] != 0)
+            klog("%i: 0x%Z\n", i, (uint64_t)p3_table[i]);
+    }
+
+    klog("P3 hh:\n");
+    for (int i = 0; i < 1024; i++)
+    {
+        if (p3_table_hh[i] != 0)
+            klog("%i: 0x%Z\n", i, (uint64_t)p3_table_hh[i]);
+    }
+
+    klog("P2:\n");
+    for (int i = 0; i < 1024; i++)
+    {
+        if (p2_table[i] != 0)
+            klog("%i: 0x%Z\n", i, (uint64_t)p2_table[i]);
+    }
+
+    /*
+        klog("Pt tables:\n");
+        for (int i = 0; i < 1024; i++)
+        {
+            if (pt_tables[i] != 0)
+                klog("%i: 0x%Z\n", i, (uint64_t)pt_tables[i]);
+        }
+        */
 }
 
 void cursor_disable()
@@ -63,8 +98,6 @@ void kernel_start(unsigned long addr, unsigned long magic)
     print_set_color(COLOR_LIGHT_GRAY, COLOR_BLACK);
 
     serial_init();
-
-    klog("PotatOS\n");
 
     basic_system_init(addr);
 
@@ -88,6 +121,47 @@ void kernel_start(unsigned long addr, unsigned long magic)
     idt_init();
 
     cursor_disable();
+
+    if (tagfb != NULL && tagfb->common.size == 38)
+    {
+        int k = 0;
+        int speed = 1;
+        int dx = speed;
+        int dy = speed;
+
+        int x = tagfb->common.framebuffer_width / 2;
+        int y = tagfb->common.framebuffer_height / 2;
+
+        while (1)
+        {
+            framebuffer_clear_black();
+            // draw_testCanvas();
+
+            draw_text(x, y, 255, 255, 255, "Ohai!");
+
+            x += dx;
+            y += dy;
+
+            if (x > tagfb->common.framebuffer_width - 100)
+            {
+                dx = -speed;
+            }
+            if (x <= 0)
+            {
+                dx = speed;
+            }
+            if (y > tagfb->common.framebuffer_height - 20)
+            {
+                dy = -speed;
+            }
+            if (y <= 0)
+            {
+                dy = speed;
+            }
+
+            framebuffer_flip();
+        }
+    }
 
     while (1)
         ;
