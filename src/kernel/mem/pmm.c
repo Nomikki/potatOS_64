@@ -6,7 +6,7 @@ extern uint32_t used_frames;
 
 void pmm_setup(unsigned long addr, uint32_t size)
 {
-    klog("Addr: %Z, size: %X\n", addr, size);
+    // klog("Addr: %Z, size: %X\n", addr, size);
     bitmap_init(addr + size);
     uint64_t bitmap_start_addr;
     size_t bitmap_size;

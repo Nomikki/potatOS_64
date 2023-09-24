@@ -16,8 +16,12 @@ extern uint64_t _kern_virtual_offset;
 
 extern uint64_t multiboot_framebuffer_data;
 extern uint64_t multiboot_basic_meminfo;
+extern uint64_t multiboot_mmap_data;
+
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_framebuffer *tagfb = NULL;
+struct multiboot_tag_mmap *tagmmap = NULL;
+
 extern uint64_t p2_table[];
 extern uint64_t p4_table[];
 extern uint64_t p3_table[];
@@ -36,6 +40,7 @@ void basic_system_init(unsigned long addr)
 
     tagmem = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb = (struct multiboot_tag_framebuffer *)(multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
+    tagmmap = (struct multiboot_tat_mmap *)(multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
 
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
 
@@ -43,9 +48,13 @@ void basic_system_init(unsigned long addr)
 
     framebuffer_init(tagfb->common.framebuffer_addr + _HIGHER_HALF_KERNEL_MEM_START);
 
-    klog("End of mapped mem: 0x%Z\n", end_of_mapped_memory);
-
+    // klog("End of mapped mem: 0x%Z\n", end_of_mapped_memory);
+    mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
+
+    mmap_setup();
+
+    /*
 
     klog("mapped tables:\n");
     klog("P4:\n");
@@ -75,6 +84,7 @@ void basic_system_init(unsigned long addr)
         if (p2_table[i] != 0)
             klog("%i: 0x%Z\n", i, (uint64_t)p2_table[i]);
     }
+    */
 
     /*
         klog("Pt tables:\n");
@@ -99,19 +109,19 @@ void kernel_start(unsigned long addr, unsigned long magic)
 
     serial_init();
 
-    basic_system_init(addr);
+    klog("PotatOS\n");
 
     uint64_t kernelStart = (uint64_t)&_kernel_start;
     uint64_t kernelEnd = (uint64_t)&_kernel_physical_end;
     uint64_t kernelSize = (((unsigned long)&_kernel_end + (1024 * 1024)) - (unsigned long)&_kern_virtual_offset);
 
-    klog("virtual offset: %Z\n", (unsigned long)&_kern_virtual_offset);
+    // klog("virtual offset: %Z\n", (unsigned long)&_kern_virtual_offset);
 
     unsigned size = *(unsigned *)(addr + _HIGHER_HALF_KERNEL_MEM_START);
 
-    if (magic == 0x36d76289)
+    if (magic = 0x36d76289)
     {
-        klog("Magic number verified Size:  %X - Magic: %X\n", size, magic);
+        // klog("Magic number verified Size:  %X - Magic: %X\n", size, magic);
     }
     else
     {
@@ -119,6 +129,8 @@ void kernel_start(unsigned long addr, unsigned long magic)
     }
 
     idt_init();
+
+    basic_system_init(addr);
 
     cursor_disable();
 

@@ -79,18 +79,20 @@ void draw_testCanvas()
 
 void framebuffer_init(unsigned long addr)
 {
+    if (tagfb->common.type == 5)
+    {
+        font = (PSF_font *)&_binary_font_psf_start;
+        font_bytesPerLine = (font->width + 7) / 8;
 
-    font = (PSF_font *)&_binary_font_psf_start;
-    font_bytesPerLine = (font->width + 7) / 8;
+        // framebuffer = addr;
+        klog("Frame buffer info: type: 0x%X, address: 0x%Z\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+        klog("width: %u, height: %u, bpp: %u, pitch: %u\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
 
-    // framebuffer = addr;
-    klog("Frame buffer info: type: 0x%X, address: 0x%Z\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    klog("width: %u, height: %u, bpp: %u, pitch: %u\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+        klog("font bytes per line: %u\n", font_bytesPerLine);
 
-    klog("font bytes per line: %u\n", font_bytesPerLine);
-
-    klog("font magic: %X\n", font->magic);
-    klog("font size: %i * %i\n", font->width, font->height);
+        klog("font magic: %X\n", font->magic);
+        klog("font size: %i * %i\n", font->width, font->height);
+    }
 }
 
 void plot_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)

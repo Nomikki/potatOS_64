@@ -1,5 +1,6 @@
 #include <configs.h>
 #include <kernel/mem/bitmap.h>
+#include <kernel/mem/mmap.h>
 #include <stdint.h>
 #include <multiboot.h>
 
@@ -19,8 +20,9 @@ void bitmap_init(unsigned long end_of_reserved_area)
     uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size / 0x1000l + 1;
     number_of_entries = bitmap_size / 64 + 1;
+    memory_map_phys_addr = mmap_determine_bitmap_region(end_of_reserved_area, bitmap_size / 8 + 1);
 
-    memory_map = (uint64_t*)(memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
+    memory_map = (uint64_t *)(memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
 
     for (int i = 0; i < number_of_entries; i++)
     {

@@ -28,6 +28,7 @@ objects = 	obj/configs.o \
 			obj/kernel/arch/x64/vga.o \
 			obj/kernel/arch/x64/idt.o \
 			obj/kernel/arch/x64/interruptstub.o \
+			obj/kernel/mem/mmap.o \
 			obj/kernel/mem/bitmap.o \
 			obj/kernel/mem/pmm.o \
 			obj/utils/log.o \
