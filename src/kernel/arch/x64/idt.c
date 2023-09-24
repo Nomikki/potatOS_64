@@ -126,7 +126,7 @@ struct cpu_status *interrupt_dispatch(struct cpu_status *context)
         }
 
         klog("\n");
-        klog("Interrupt vector: %Z\n", interrupt_number);
+        klog("Interrupt vector: 0x%x\n", interrupt_number);
 
         klog("r15:  %Z  ", context->r15);
         klog("r14:  %Z\n", context->r14);
@@ -146,12 +146,37 @@ struct cpu_status *interrupt_dispatch(struct cpu_status *context)
 
         klog("\n");
 
-        klog("err: %Z\n", context->error_code);
+        klog("err: %X: %B\n", context->error_code, context->error_code);
+        if (context->error_code & 0b1)
+            klog("P: Present bit\n");
+        if (context->error_code & 0b10)
+            klog("W: Write bit\n");
+        if (context->error_code & 0b100)
+            klog("U: User bit\n");
+        if (context->error_code & 0b1000)
+            klog("R: Reserved write bit\n");
+        if (context->error_code & 0b10000)
+            klog("I: Instruction fetch bit\n");
+        if (context->error_code & 0b100000)
+            klog("PK: Protection Key bit\n");
+        if (context->error_code & 0b1000000)
+            klog("SS: Shadow Stack bit\n");
+        if (context->error_code & 0b100000000000000)
+            klog("SGX: Software Guard Extensions bit\n");
+        
+        if (context->error_code > 0)
+            klog("\n");
+
         klog("rip: %Z\n", context->rip);
         klog("cs:  %Z\n", context->cs);
         klog("rfl: %Z\n", context->rflags);
         klog("rsp: %Z\n", context->rsp);
         klog("ss:  %Z\n", context->ss);
+
+        while (1)
+        {
+            asm("hlt");
+        }
     }
 
     if (interrupt_number >= 0x20 && interrupt_number < 0x20 + 16)
@@ -171,13 +196,6 @@ struct cpu_status *interrupt_dispatch(struct cpu_status *context)
             kprintf("%c", scancode);
         }
     }
-
-    /*
-    while (1)
-    {
-        asm("hlt");
-    }
-    */
 
     outportb(PIC_MASTER_COMMAND, 0x20);
     outportb(PIC_SLAVE_COMMAND, 0x20);
